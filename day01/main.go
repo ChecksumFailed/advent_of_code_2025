@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+type dial struct {
+	position int
+	size     int
+}
+
 func readFile(filePath string) ([]string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -18,45 +23,53 @@ func readFile(filePath string) ([]string, error) {
 	return strings.Split(fileContent, "\n"), nil
 }
 
-func rotateDial(line string, curPosition int) int {
+func (d *dial) rotate(direction byte, steps int) {
+	switch direction {
+	case 'R':
+		d.position = (d.position + steps) % d.size
+	case 'L':
+		d.position = (d.position - steps) % d.size
+		if d.position < 0 {
+			d.position += d.size
+		}
+	}
+}
+
+
+func processLine(line string, d *dial) {
 	direction := line[0]
 	steps, err := strconv.Atoi(line[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	switch direction {
-	case 'R':
-		curPosition = (curPosition + steps) % 100
-	case 'L':
-		curPosition = (curPosition - steps) % 100
-		if curPosition < 0 {
-			curPosition += 100
-		}
-	}
-	return curPosition
+	d.rotate(direction, steps)
 }
 
-func main() {
-	curPosition := 50
+func run(lines []string) {
+	var d dial
+	d.position = 50
+	d.size = 100
 	numZeroes := 0
-	fmt.Println("Starting Position:", curPosition)
-
-	lines, err := readFile("input")
-	if err != nil {
-		log.Fatal(err)
-	}
+	fmt.Println("Starting Position:", d.position)
 
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
-		curPosition = rotateDial(line, curPosition)
-		fmt.Println("Rotated ", line, " New Position:", curPosition)
-		if curPosition == 0 {
+		processLine(line, &d)
+		if d.position == 0 {
 			numZeroes++
 		}
 	}
 
 	fmt.Println("Password:", numZeroes)
+}
+
+func main() {
+	lines, err := readFile("input")
+	if err != nil {
+		log.Fatal(err)
+	}
+	run(lines)
+
 }
