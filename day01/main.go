@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings" // ERROR 2 FIX: Added strings package
+	"strings"
 )
 
 func readFile(filePath string) ([]string, error) {
