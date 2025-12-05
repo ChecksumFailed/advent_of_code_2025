@@ -65,6 +65,7 @@ func run() error {
 			fmt.Fprintf(os.Stderr, "warning: skipping line %q: %v\n", line, err)
 			continue
 		}
+		fmt.Println("Rotated", line, "- New Position:", d.position)
 		if d.position == 0 {
 			numZeroes++
 		}
