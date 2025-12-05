@@ -58,5 +58,5 @@ func main() {
 		}
 	}
 
-	fmt.Println("Number of times position was zero:", numZeroes)
+	fmt.Println("Password:", numZeroes)
 }
