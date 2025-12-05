@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -16,11 +15,9 @@ type dial struct {
 func readFile(filePath string) ([]string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-
-	fileContent := string(content)
-	return strings.Split(fileContent, "\n"), nil
+	return strings.Split(string(content), "\n"), nil
 }
 
 func (d *dial) rotate(direction byte, steps int) {
@@ -35,17 +32,25 @@ func (d *dial) rotate(direction byte, steps int) {
 	}
 }
 
-
-func processLine(line string, d *dial) {
+func processLine(line string, d *dial) error {
+	if len(line) < 2 {
+		return fmt.Errorf("invalid line format: %q", line)
+	}
 	direction := line[0]
 	steps, err := strconv.Atoi(line[1:])
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("invalid steps: %w", err)
 	}
 	d.rotate(direction, steps)
+	return nil
 }
 
-func run(lines []string) {
+func run() error {
+	lines, err := readFile("input")
+	if err != nil {
+		return fmt.Errorf("reading file: %w", err)
+	}
+
 	var d dial
 	d.position = 50
 	d.size = 100
@@ -56,20 +61,22 @@ func run(lines []string) {
 		if line == "" {
 			continue
 		}
-		processLine(line, &d)
+		if err := processLine(line, &d); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: skipping line %q: %v\n", line, err)
+			continue
+		}
 		if d.position == 0 {
 			numZeroes++
 		}
 	}
 
 	fmt.Println("Password:", numZeroes)
+	return nil
 }
 
 func main() {
-	lines, err := readFile("input")
-	if err != nil {
-		log.Fatal(err)
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
 	}
-	run(lines)
-
 }
