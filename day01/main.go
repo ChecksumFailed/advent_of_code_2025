@@ -25,9 +25,10 @@ func rotateDial(line string, curPosition int) int {
 		log.Fatal(err)
 	}
 
-	if direction == 'R' {
+	switch direction {
+	case 'R':
 		curPosition = (curPosition + steps) % 100
-	} else if direction == 'L' {
+	case 'L':
 		curPosition = (curPosition - steps) % 100
 		if curPosition < 0 {
 			curPosition += 100
